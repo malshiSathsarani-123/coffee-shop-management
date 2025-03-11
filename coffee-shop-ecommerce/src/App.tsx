@@ -4,6 +4,7 @@ import Navbar from './components/AppNavbar';
 import Home from './pages/Home';
 import CartPage from './pages/CartPage';
 import Cake from './pages/Cake';
+import Coffee from './pages/Coffee';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 
 const App: React.FC = () => {
@@ -14,6 +15,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/cake" element={<Cake />} />
+        <Route path="/coffee" element={<Coffee />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
       </Routes>
     </div>
