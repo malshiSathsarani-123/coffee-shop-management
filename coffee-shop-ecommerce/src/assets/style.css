@@ -1,0 +1,8 @@
+.dashboard, .hero-banner, .container-fluid {
+    width: 100%;
+  }
+  .hero-banner img {
+    display: block;
+    width: 100%;
+  }
+  
