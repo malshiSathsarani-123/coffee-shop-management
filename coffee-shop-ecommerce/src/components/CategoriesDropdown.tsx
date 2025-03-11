@@ -1,6 +1,6 @@
 import React, { useState, MouseEvent } from 'react';
 import { Button, Popover, Overlay, ListGroup } from 'react-bootstrap';
-import { FaListUl, FaTimes, FaBirthdayCake,FaCoffee, FaCookie,FaMugHot, FaHamburger,FaGlassMartiniAlt } from 'react-icons/fa';
+import { FaListUl, FaTimes, FaBirthdayCake,FaCoffee, FaHome, FaCookie,FaMugHot, FaHamburger,FaGlassMartiniAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom'; 
 
 interface CategoriesDropdownProps {
@@ -17,12 +17,13 @@ const CategoriesDropdown: React.FC<CategoriesDropdownProps> = ({ className }) =>
   };
 
 const categories = [
+  { name: "Home", icon: <FaHome className="text-warning" />,path: '/' },
   { name: "Coffee", icon: <FaCoffee className="text-warning" />,path: '/coffee' },
-  { name: "Tea", icon: <FaMugHot className="text-success" /> , path: '/coffee'},
-  { name: "Beverages", icon: <FaGlassMartiniAlt className="text-success" />,path: '/coffee' },
-  { name: "Snacks", icon: <FaHamburger className="text-warning" />,path: '/coffee' },
+  { name: "Tea", icon: <FaMugHot className="text-success" /> , path: '/tea'},
+  { name: "Beverages", icon: <FaGlassMartiniAlt className="text-success" />,path: '/beverages' },
+  { name: "Snacks", icon: <FaHamburger className="text-warning" />,path: '/snacks' },
   { name: "Cake", icon: <FaBirthdayCake className="text-danger" />,path: '/cake' },
-  { name: "Coffee Beans & Merchandise", icon: <FaCookie className="text-brown" />,path: '/coffee' }, 
+  { name: "Coffee Beans & Merchandise", icon: <FaCookie className="text-brown" />,path: '/coffee-beans-merchandise' }, 
 ];
 
   return (

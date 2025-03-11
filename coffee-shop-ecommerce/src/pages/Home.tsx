@@ -9,10 +9,10 @@ const Home: React.FC = () => {
   const categories = [
     { id: 1, name: 'Coffee', image: '/src/assets/coffee.jpeg', path: '/coffee' },
     { id: 2, name: 'Tea', image: '/src/assets/tea.jpeg', path: '/tea' },
-    { id: 3, name: 'Beverages', image: '/src/assets/snacks.jpeg', path: '/beverages' },
-    { id: 4, name: 'Pastries & Snacks', image: '/src/assets/snacks.jpeg', path: '/pastries-snacks' },
+    { id: 3, name: 'Beverages', image: '/src/assets/beverages.jpeg', path: '/beverages' },
+    { id: 4, name: 'Pastries & Snacks', image: '/src/assets/snacks.jpeg', path: '/snacks' },
     { id: 5, name: 'Cakes', image: '/src/assets/cake.jpeg', path: '/cake' },
-    { id: 6, name: 'Coffee Beans & Merchandise', image: '/src/assets/cake.jpeg', path: '/coffee-beans-merchandise' }
+    { id: 6, name: 'Coffee Beans & Merchandise', image: '/src/assets/coffee-beans-merchandise.jpeg', path: '/coffee-beans-merchandise' }
   ];
   
   return (
