@@ -1,26 +1,32 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const customerRoutes = require('./routes/customerRoutes');
+const coffeeProductRoutes = require('./routes/coffeeProductRoutes');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
+const host = 'localhost';
 
-// Middleware
+dotenv.config();
+
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Connect to MongoDB
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri)
-    .then(() => console.log("MongoDB database connection established successfully"))
-    .catch(err => console.log("MongoDB connection error: ", err));
+connectDB();
 
-// Routes
-// const exampleRouter = require('./routes/example');
-// app.use('/api/examples', exampleRouter);
-
-// Start server
-app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Something went wrong!" });
 });
+
+
+app.listen(PORT, host, () => {
+    console.log(`Server is running on http://${host}:${PORT}`);
+});
+
+app.use('/api/customers', customerRoutes);
+app.use('/api/coffeeProduct', coffeeProductRoutes);
