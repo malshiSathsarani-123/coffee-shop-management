@@ -12,6 +12,7 @@ const Products: React.FC = () => {
     name: "",
     price: 0,
     category: "",
+    subCategory:"",
     image: "",
   }); 
   
@@ -19,11 +20,13 @@ const Products: React.FC = () => {
   const [newProduct, setNewProduct] = useState<{
     name: string;
     category: string;
+    subCategory: string;
     price: number;
     image: File | null; 
   }>({
     name: '',
     category: '',
+    subCategory:'',
     price: 0,
     image: null,  
   });
@@ -34,8 +37,45 @@ const Products: React.FC = () => {
     name: string;
     price: number;
     category: string;
+    subCategory:string,
     image: string;
   }
+  const categoryData: Record<string, string[]> = {
+    coffee: ["Espresso", "Latte", "Cappuccino", "Mocha", "Cold Brew", "Iced Coffee", "Specialty Coffee", "Organic Coffee"],
+    tea: ["Green Tea", "Black Tea", "Herbal Tea", "Iced Tea", "Chai Tea", "Specialty Tea", "Organic Tea"],
+    cake: ["Chocolate Cakes", "Fruit Cakes", "Cake And Flower", "Gift Set And Cake", "Choco Gift And Cake", "Premium Cakes", "Birthday Cakes", "Wedding Cakes"],
+    beverages: ["All Beverages", "Smoothies", "Juices", "Organic Beverages"],
+    snacks: ["Salty Snacks", "Sweet Snacks", "Crisps & Chips", "Cookies & Biscuits", "Nuts & Dry Fruits", "Healthy Snacks"],
+    "coffee-beans-merchandise": ["Coffee Beans", "Coffee Accessories", "Merchandise"]
+  };
+  
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = e.target.value;
+    setNewProduct({
+      ...newProduct,
+      category: selectedCategory,
+      subCategory: "" // Reset subcategory when category changes
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+  
+    try {
+      
+      const response = await axios.delete(`http://localhost:5000/api/coffeeProduct/delete/${id}`);
+  
+      // setProducts((prevProducts) => prevProducts.filter((p) => p._id !== id));
+  
+      alert(response.data.message);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Error deleting product. Please try again.");
+    }
+  };
+  
   
   useEffect(() => {
     fetchProducts();
@@ -44,7 +84,7 @@ const Products: React.FC = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5000/api/coffeeProduct/coffee-products/get");
+      const response = await axios.get("http://localhost:5000/api/coffeeProduct/get");
       console.log(response);
       
       setProducts(response.data.response);
@@ -79,26 +119,24 @@ const Products: React.FC = () => {
     const formData = new FormData();
     formData.append("name", newProduct.name);
     formData.append("category", newProduct.category);
+    formData.append("subCategory", newProduct.subCategory);
     formData.append("price", newProduct.price.toString());
     formData.append("image", newProduct.image); 
   
     try {
-      const response = await axios.post("http://localhost:5000/api/coffeeProduct/coffee-products/create", formData, {
+      const response = await axios.post("http://localhost:5000/api/coffeeProduct/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      fetchProducts();
-      alert(response.data.message);
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error saving product:", error);
-      alert("Failed to save product");
-    }
-};
-
-  
-  
+        fetchProducts();
+        alert(response.data.message);
+        setShowModal(false);
+      } catch (error) {
+        console.error("Error saving product:", error);
+        alert("Failed to save product");
+      }
+  };
   return (
     <div className="d-flex">
       <Sidebar />
@@ -199,38 +237,47 @@ const Products: React.FC = () => {
                         <th>Product Name</th>
                         <th>Price</th>
                         <th>Category</th>
+                        <th>Sub Category</th>
                         <th>Image</th>
+                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {products.map((product) => {
                         const price = parseFloat(product.price);
-                        // const price = product.price;
                         return (
-                          <tr
-                            key={product.id}
-                            onClick={() => setEditProduct(product)}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <td>{product.id}</td>
-                            <td>{product.name}</td>
-                            <td>
-                              {/* Check if the price is a valid number before displaying */}
-                              {isNaN(price) ? 'Invalid price' : `$${price.toFixed(2)}`}
-                            </td>
-                            <td>{product.category}</td>
-                            <td>
-                              {product.image ? (
-                                <img
-                                  src={`http://localhost:5000/${product.image}`}
-                                  alt={product.name}
-                                  width="50"
-                                />
-                              ) : (
-                                "No Image"
-                              )}
-                            </td>
-                          </tr>
+                          <tr key={product.id} style={{ cursor: "pointer" }}>
+                          <td>{product.id}</td>
+                          <td>{product.name}</td>
+                          <td>{isNaN(price) ? 'Invalid price' : `$${price.toFixed(2)}`}</td>
+                          <td>{product.category}</td>
+                          <td>{product.subCategory}</td>
+                          <td>
+                            {product.image ? (
+                              <img
+                                src={`http://localhost:5000/${product.image}`}
+                                alt={product.name}
+                                width="50"
+                              />
+                            ) : (
+                              "No Image"
+                            )}
+                          </td>
+                          <td>
+                            <button
+                              className="btn btn-primary btn-sm me-2"
+                              onClick={() => setEditProduct(product)}
+                            >
+                              Update
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm"
+                              onClick={() => handleDelete(product.id)}
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
                         );
                       })}
                     </tbody>
@@ -240,44 +287,6 @@ const Products: React.FC = () => {
             </Card>
           </Col>
         </Row>
-
-        {/* <Row className="mb-3">
-          <Col md={12}>
-            <Card className="shadow-sm p-3">
-              <Card.Body>
-                <h6>Product List</h6>
-                {products.length === 0 ? (
-                    <p className="text-muted">No products added yet.</p>
-                  ) : (
-                    <Table striped bordered hover size="sm">
-                      <thead>
-                        <tr>
-                          <th>#</th>
-                          <th>Product Name</th>
-                          <th>Price</th>
-                          <th>Category</th>
-                          <th>Image</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {products.map((product) => (
-                          <tr key={product.id} onClick={() => setEditProduct(product)} style={{ cursor: "pointer" }}>
-                            <td>{product.id}</td>
-                            <td>{product.name}</td>
-                            <td>{product.price}</td>
-                            <td>{product.category}</td>
-                            <td>
-                              <img src={product.image} alt={product.name} width="50" />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row> */}
 
         {/* Add Product Modal */}
         <Modal show={showModal} onHide={() => setShowModal(false)} centered>
@@ -296,17 +305,28 @@ const Products: React.FC = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Category</Form.Label>
-                <Form.Select
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                >
-                  <option value="">Select Category</option>
-                  <option value="coffee">Coffee</option>
-                  <option value="cake">Cake</option>
-                  <option value="beverages">Beverages</option>
-                </Form.Select>
-              </Form.Group>
+        <Form.Label>Category</Form.Label>
+        <Form.Select value={newProduct.category} onChange={handleCategoryChange}>
+          <option value="">Select Category</option>
+          {Object.keys(categoryData).map((category) => (
+            <option key={category} value={category}>{category.replace(/-/g, " ")}</option>
+          ))}
+        </Form.Select>
+      </Form.Group>
+      {newProduct.category && (
+        <Form.Group className="mb-3">
+          <Form.Label>Sub Category</Form.Label>
+          <Form.Select
+            value={newProduct.subCategory}
+            onChange={(e) => setNewProduct({ ...newProduct, subCategory: e.target.value })}
+          >
+            <option value="">Select Subcategory</option>
+            {categoryData[newProduct.category]?.map((sub) => (
+              <option key={sub} value={sub}>{sub}</option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      )}
               <Form.Group className="mb-3">
                 <Form.Label>Price</Form.Label>
                 <Form.Control
