@@ -17,6 +17,9 @@ const Products: React.FC = () => {
   }); 
   
   const [showModal, setShowModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState({} as Product);
+
   const [newProduct, setNewProduct] = useState<{
     name: string;
     category: string;
@@ -49,6 +52,45 @@ const Products: React.FC = () => {
     "coffee-beans-merchandise": ["Coffee Beans", "Coffee Accessories", "Merchandise"]
   };
   
+
+  const handleEdit = (product:any) => {
+    setSelectedProduct(product);
+    setShowUpdateModal(true); 
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!selectedProduct) return;
+
+    try {
+        const response = await fetch("http://localhost:5000/api/coffeeProduct/update", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id: selectedProduct.id, 
+                name: selectedProduct.name,
+                price: selectedProduct.price,
+                image: selectedProduct.image,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update product");
+        }
+
+        await response.json();
+        fetchProducts()
+        alert("Product updated successfully!");
+        setShowUpdateModal(false);
+    } catch (error) {
+        console.error("Error updating product:", error);
+        alert("Error updating product. Please try again.");
+    }
+};
+
+  
+
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = e.target.value;
     setNewProduct({
@@ -62,16 +104,11 @@ const Products: React.FC = () => {
     if (!window.confirm("Are you sure you want to delete this product?")) {
       return;
     }
-  
     try {
-      
       const response = await axios.delete(`http://localhost:5000/api/coffeeProduct/delete/${id}`);
-  
-      // setProducts((prevProducts) => prevProducts.filter((p) => p._id !== id));
-  
+      fetchProducts();  
       alert(response.data.message);
     } catch (error) {
-      console.error("Error deleting product:", error);
       alert("Error deleting product. Please try again.");
     }
   };
@@ -85,7 +122,6 @@ const Products: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.get("http://localhost:5000/api/coffeeProduct/get");
-      console.log(response);
       
       setProducts(response.data.response);
     } catch (err) {
@@ -109,7 +145,6 @@ const Products: React.FC = () => {
   
   
   const handleSaveProduct = async () => {
-    console.log(newProduct);
     
     if (!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.category) {
       alert("Please fill all required fields!");
@@ -149,73 +184,6 @@ const Products: React.FC = () => {
             </Button>
           </Card.Body>
         </Card>
-        <Row className="mb-3">
-          <Col md={12}>
-            <Card className="shadow-sm p-3">
-              <Card.Body>
-                <h6>Add New Product</h6>
-                <Form>
-                  <Row>
-                    <Col md={3}>
-                      <Form.Group>
-                        <Form.Label>Product Name</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter product name"
-                          value={editProduct.name}
-                          onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group>
-                        <Form.Label>Price</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter price"
-                          value={editProduct?.price || ""}  // Use an empty string as fallback
-                          onChange={(e) => {
-                            const price = parseFloat(e.target.value);  // Convert to number
-                            setEditProduct({ ...editProduct!, price: isNaN(price) ? 0 : price });  // Handle invalid input
-                          }}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group>
-                        <Form.Label>Category</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter category"
-                          value={editProduct.category}
-                          onChange={(e) => setEditProduct({ ...editProduct, category: e.target.value })}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={3}>
-                      <Form.Group>
-                        <Form.Label>Image URL</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter image URL"
-                          value={editProduct.image}
-                          onChange={(e) => setEditProduct({ ...editProduct, image: e.target.value })}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Row className="mt-3">
-                    <Col className="text-end">
-                      <Button variant="primary" onClick={handleAddProduct}>
-                        Add Product
-                      </Button>
-                    </Col>
-                  </Row>
-                </Form>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
 
         {/* Product List */}
         <Row className="mb-3">
@@ -235,7 +203,8 @@ const Products: React.FC = () => {
                       <tr>
                         <th>#</th>
                         <th>Product Name</th>
-                        <th>Price</th>
+                        <th>Price
+                          (Rs)</th>
                         <th>Category</th>
                         <th>Sub Category</th>
                         <th>Image</th>
@@ -249,7 +218,7 @@ const Products: React.FC = () => {
                           <tr key={product.id} style={{ cursor: "pointer" }}>
                           <td>{product.id}</td>
                           <td>{product.name}</td>
-                          <td>{isNaN(price) ? 'Invalid price' : `$${price.toFixed(2)}`}</td>
+                          <td>{isNaN(price) ? 'Invalid price' : `${price.toFixed(2)}`}</td>
                           <td>{product.category}</td>
                           <td>{product.subCategory}</td>
                           <td>
@@ -266,7 +235,7 @@ const Products: React.FC = () => {
                           <td>
                             <button
                               className="btn btn-primary btn-sm me-2"
-                              onClick={() => setEditProduct(product)}
+                              onClick={() => handleEdit(product)}
                             >
                               Update
                             </button>
@@ -305,32 +274,32 @@ const Products: React.FC = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-        <Form.Label>Category</Form.Label>
-        <Form.Select value={newProduct.category} onChange={handleCategoryChange}>
-          <option value="">Select Category</option>
-          {Object.keys(categoryData).map((category) => (
-            <option key={category} value={category}>{category.replace(/-/g, " ")}</option>
-          ))}
-        </Form.Select>
-      </Form.Group>
-      {newProduct.category && (
-        <Form.Group className="mb-3">
-          <Form.Label>Sub Category</Form.Label>
-          <Form.Select
-            value={newProduct.subCategory}
-            onChange={(e) => setNewProduct({ ...newProduct, subCategory: e.target.value })}
-          >
+            <Form.Label>Category</Form.Label>
+            <Form.Select value={newProduct.category} onChange={handleCategoryChange}>
+              <option value="">Select Category</option>
+              {Object.keys(categoryData).map((category) => (
+                <option key={category} value={category}>{category.replace(/-/g, " ")}</option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+          {newProduct.category && (
+            <Form.Group className="mb-3">
+              <Form.Label>Sub Category</Form.Label>
+              <Form.Select
+                value={newProduct.subCategory}
+                onChange={(e) => setNewProduct({ ...newProduct, subCategory: e.target.value })}
+              >
             <option value="">Select Subcategory</option>
             {categoryData[newProduct.category]?.map((sub) => (
               <option key={sub} value={sub}>{sub}</option>
-            ))}
-          </Form.Select>
-        </Form.Group>
-      )}
+                ))}
+              </Form.Select>
+            </Form.Group>
+            )}
               <Form.Group className="mb-3">
                 <Form.Label>Price</Form.Label>
                 <Form.Control
-                  type="text"
+                  type="number"
                   placeholder="Enter price"
                   value={newProduct.price}
                   onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
@@ -356,51 +325,81 @@ const Products: React.FC = () => {
           </Modal.Footer>
         </Modal>
 
+ {/*Update Product Modal */}
+        <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>{selectedProduct ? "Update Product" : "Add New Product"}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Product Name</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter product name"
+          value={selectedProduct?.name || ""}
+          onChange={(e) => setSelectedProduct({ ...selectedProduct, name: e.target.value })}
+        />
+      </Form.Group>
 
-        {/* <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Add New Product</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Product Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter product name"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Category</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter category"
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter price"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                />
-              </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Close
-            </Button>
-            <Button variant="success" onClick={handleSaveProduct}>
-              Save Product
-            </Button>
-          </Modal.Footer>
-        </Modal> */}
+      <Form.Group className="mb-3">
+        <Form.Label>Category</Form.Label>
+        <Form.Select
+          value={selectedProduct?.category || ""}
+          onChange={(e) => setSelectedProduct({ ...selectedProduct, category: e.target.value })}
+        >
+          <option value="">Select Category</option>
+          {Object.keys(categoryData).map((category) => (
+            <option key={category} value={category}>
+              {category.replace(/-/g, " ")}
+            </option>
+          ))}
+        </Form.Select>
+      </Form.Group>
+
+      {selectedProduct?.category && (
+        <Form.Group className="mb-3">
+          <Form.Label>Sub Category</Form.Label>
+          <Form.Select
+            value={selectedProduct?.subCategory || ""}
+            onChange={(e) => setSelectedProduct({ ...selectedProduct, subCategory: e.target.value })}
+          >
+            <option value="">Select Subcategory</option>
+            {categoryData[selectedProduct?.category]?.map((sub) => (
+              <option key={sub} value={sub}>
+                {sub}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      )}
+
+      <Form.Group className="mb-3">
+        <Form.Label>Price</Form.Label>
+        <Form.Control
+          type="number"
+          placeholder="Enter price"
+          value={selectedProduct?.price || ""}
+          onChange={(e) => setSelectedProduct({ ...selectedProduct, price: e.target.value })}
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Product Image</Form.Label>
+        <Form.Control type="file" accept="image/*" onChange={(e) => handleImageChange(e)} />
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
+      Close
+    </Button>
+    <Button variant="success" onClick={handleUpdateProduct}>
+    Update Product
+    </Button>
+  </Modal.Footer>
+</Modal>
       </Container>
     </div>
   );
