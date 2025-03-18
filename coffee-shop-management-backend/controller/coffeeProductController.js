@@ -89,13 +89,15 @@ const getProductById = async (req, res) => {
 // Update CoffeeProduct
 const updateCoffeeProduct = async (req, res) => {
     try {
-        const { id, name, price, image, discount, isTopChoice } = req.body;
+        const { id, name, price, qty } = req.body;
+        const updateFields = { name, price, qty };
 
-        const response = await CoffeeProduct.updateOne(
-            { id: id },
-            { $set: { name, price, image, discount, isTopChoice } }
-        );
-        
+        if (req.file) {
+            updateFields.image = req.file.path; // Only update image if a new file is uploaded
+        }
+
+        await CoffeeProduct.updateOne({ id: id }, { $set: updateFields });
+
         res.status(200).json({ message: "Product updated successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -127,5 +129,3 @@ exports.getProductById = getProductById;
 exports.getProductsBySubCategory = getProductsBySubCategory;
 exports.updateCoffeeProduct = updateCoffeeProduct;
 exports.deleteCoffeeProduct = deleteCoffeeProduct;
-
-

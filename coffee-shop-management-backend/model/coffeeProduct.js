@@ -6,6 +6,7 @@ const coffeeProductSchema = new mongoose.Schema({
   category: { type: String, required: true },
   subCategory: { type: String, required: true },
   price: { type: String, required: true },
+  qty: { type: Number, default: 0 },
   image: { type: String, required: true },
   discount: { type: Number, default: 0 },
   isTopChoice: { type: Boolean, default: false },

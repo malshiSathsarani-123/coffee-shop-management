@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const customerRoutes = require('./routes/customerRoutes');
 const coffeeProductRoutes = require('./routes/coffeeProductRoutes');
+const userRoutes = require('./routes/userRoutes');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const path = require('path');
@@ -30,3 +31,4 @@ app.listen(PORT, host, () => {
 
 app.use('/api/customers', customerRoutes);
 app.use('/api/coffeeProduct', coffeeProductRoutes);
+app.use('/api/users', userRoutes);
