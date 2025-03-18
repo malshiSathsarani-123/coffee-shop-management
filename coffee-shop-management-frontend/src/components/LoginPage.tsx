@@ -1,20 +1,27 @@
 
-import { useState } from "react";
+import { useState , useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css"; 
+import { Link } from "react-router-dom";
 
-const LoginPage = () => {
+const LoginPage = () => {  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    setEmail("")
+    setPassword("")
+  }, []);
 
-    if (login(email, password)) {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await login(email, password);
+    if (success) {
       navigate("/dashboard"); 
     } else {
       alert("Invalid credentials!"); 
@@ -63,7 +70,7 @@ const LoginPage = () => {
             <button type="submit" className="btn btn-success w-100 py-2 rounded-pill">LOG IN</button>
           </form>
           <p className="mt-3" style={{ fontSize: "14px" }}>
-            Don't have an account? <a href="#" className="text-success">Sign up</a>
+            Don't have an account? <Link to="/register" className="text-success">Sign up</Link>
           </p>
         </div>
       </div>

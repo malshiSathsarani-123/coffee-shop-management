@@ -56,7 +56,7 @@ const salesData = {
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated, logout, currentUserEmail } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   if (!isAuthenticated) {
     return <p className="text-center mt-5">Please log in to access the dashboard.</p>;
   }
@@ -80,9 +80,7 @@ const Dashboard: React.FC = () => {
           <Nav.Link href="#" className="text-dark">🏠 Home</Nav.Link>
           <Nav.Link href="#">🛍 Shopping</Nav.Link>
           <Nav.Link href="#">📜 Order List</Nav.Link>
-          {currentUserEmail === "admin@example.com" && (
-            <Nav.Link href="#" onClick={handleProduct}>☕ Add Items</Nav.Link>
-          )}
+          <Nav.Link href="#" onClick={handleProduct}>☕ Add Items</Nav.Link>
           <Nav.Link href="#">💳 Payment</Nav.Link>
           <Nav.Link href="#">⚙ Settings</Nav.Link>
           <Nav.Link href="#" className="text-danger mt-3"  onClick={handleLogout}>🚪 Log Out</Nav.Link>

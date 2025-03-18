@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import axios from "axios";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   currentUserEmail: string | null;
 }
@@ -13,33 +14,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);  
 
-  const users = [
-    { email: "admin@example.com", password: "password" },
-    { email: "user1@example.com", password: "user1pass" },
-    { email: "user2@example.com", password: "user2pass" },
-    { email: "user3@example.com", password: "user3pass" },
-    { email: "user4@example.com", password: "user4pass" }
-  ];
-  
-  const login = (email: string, password: string) => {
-    const userExists = users.some(user => user.email === email && user.password === password);
-    
-    if (userExists) {
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/users/login", { email, password });
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
       setIsAuthenticated(true);
-      setCurrentUserEmail(email);  
+      setCurrentUserEmail(user.email);
       return true;
+    } catch (error) {
+      console.error("Login failed", error);
+      return false;
     }
-    return false;
   };
   
-
   const logout = () => {
+    localStorage.removeItem("token");
     setIsAuthenticated(false);
     setCurrentUserEmail(null);  
   };
 
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout ,currentUserEmail}}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, currentUserEmail }}>
       {children}
     </AuthContext.Provider>
   );
