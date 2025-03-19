@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Card, Table, Button, Modal, Form ,Row,Col} from "react-bootstrap";
 import Sidebar from "../components/Sidebar";
 import axios from 'axios';
+import "./styles.css"; 
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -198,8 +199,8 @@ const Products: React.FC = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <Container fluid className="p-4">
-        <h3 className="mb-3">☕ Product Management</h3>
+      <Container fluid className="p-4" style={{ width: "78vw" }}>
+        <h1 className="mb-3">☕ Product Management</h1>
         <Card className="shadow-sm p-3 mb-3">
           <Card.Body>
             <Button variant="primary" onClick={handleAddProduct}>
@@ -256,13 +257,13 @@ const Products: React.FC = () => {
                           </td>
                           <td>
                             <button
-                              className="btn btn-primary btn-sm me-2"
+                              className="btn btn-outline-info m-1 btn-sm me-2"
                               onClick={() => handleEdit(product)}
                             >
                               Update
                             </button>
                             <button
-                              className="btn btn-danger btn-sm"
+                              className="btn btn-outline-danger m-1 btn-sm"
                               onClick={() => handleDelete(product.id)}
                             >
                               Delete

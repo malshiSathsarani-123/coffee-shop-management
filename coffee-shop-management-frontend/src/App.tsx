@@ -3,6 +3,7 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import Dashboard from "./components/Dashboard";
 import Products from "./components/Products";
+import Orders from "./components/Orders";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { JSX } from "react";
 
@@ -27,6 +28,7 @@ function App() {
             }
           />
           <Route path="/products" element={<Products />} /> 
+          <Route path="/orders" element={<Orders />} /> 
         </Routes>
       </AuthProvider>
     </Router>

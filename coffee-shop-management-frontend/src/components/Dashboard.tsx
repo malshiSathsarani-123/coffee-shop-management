@@ -1,8 +1,8 @@
 import React from "react";
-import { Container, Row, Col, Card, Table, Navbar, Nav } from "react-bootstrap";
+import { Container, Row, Col, Card, Table, Navbar } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Sidebar from "../components/Sidebar";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -26,11 +26,6 @@ const dashboardStats = {
   salesGrowth: "↑ 9.2%",
 };
 
-const orders = [
-  { id: 1, item: "☕ Cappuccino", date: "March 10, 2025", table: 12, price: "$5", payment: "Cash" },
-  { id: 2, item: "☕ Americano", date: "March 10, 2025", table: 8, price: "$4", payment: "Card" },
-  { id: 3, item: "☕ Latte", date: "March 10, 2025", table: 5, price: "$5.50", payment: "Cash" },
-];
 
 const trendingCoffee = [
   { name: "☕ Cappuccino", price: "$5.00", orders: 240 },
@@ -56,51 +51,35 @@ const salesData = {
 };
 
 const Dashboard: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated , currentUserEmail} = useAuth();
   if (!isAuthenticated) {
     return <p className="text-center mt-5">Please log in to access the dashboard.</p>;
   }
-
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout(); 
-    navigate("/"); 
-  };
-
-  const handleProduct = () => {
-    navigate("/products"); 
-  };
   return (
     <div className="d-flex">
-      {/* Sidebar */}
-      <div className="bg-light vh-100 p-3" style={{ width: "250px" }}>
-        <h4 className="mb-4">☕ Coffee Shop</h4>
-        <Nav className="flex-column">
-          <Nav.Link href="#" className="text-dark">🏠 Home</Nav.Link>
-          <Nav.Link href="#">🛍 Shopping</Nav.Link>
-          <Nav.Link href="#">📜 Order List</Nav.Link>
-          <Nav.Link href="#" onClick={handleProduct}>☕ Add Items</Nav.Link>
-          <Nav.Link href="#">💳 Payment</Nav.Link>
-          <Nav.Link href="#">⚙ Settings</Nav.Link>
-          <Nav.Link href="#" className="text-danger mt-3"  onClick={handleLogout}>🚪 Log Out</Nav.Link>
-        </Nav>
-      </div>
+     <Sidebar />
 
       {/* Main Dashboard */}
-      <Container fluid className="p-4">
+      <Container fluid style={{ padding: 0, marginLeft:"10px", width: "75vw" }}>
+
         {/* Top Navbar */}
-        <Navbar expand="lg" className="mb-3">
-          <Navbar.Brand>Welcome to Nogaps</Navbar.Brand>
-          <Navbar.Toggle />
-          <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text>Admin: <strong>Sheiba Patel</strong></Navbar.Text>
-          </Navbar.Collapse>
-        </Navbar>
+        <div className="border p-1 bg-light">
+          <Navbar expand="lg" className="mb-3">
+            <Navbar.Brand>
+              <h2 style={{color:"#004d40"}}>Welcome to Brave Havens</h2>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Navbar.Text>
+                Admin: <strong>{currentUserEmail}</strong>
+              </Navbar.Text>
+            </Navbar.Collapse>
+          </Navbar>
+        </div>
 
         {/* Dashboard Stats */}
         <Row className="mb-3">
-          <Col md={4}>
+          <Col md={4} >
             <Card className="shadow-sm p-3">
               <Card.Body>
                 <h6>Total Orders</h6>
@@ -160,7 +139,7 @@ const Dashboard: React.FC = () => {
         </Row>
 
         {/* Recent Orders */}
-        <Row>
+        {/* <Row>
           <Col md={12}>
             <Card className="shadow-sm p-3">
               <Card.Body>
@@ -192,7 +171,7 @@ const Dashboard: React.FC = () => {
               </Card.Body>
             </Card>
           </Col>
-        </Row>
+        </Row> */}
       </Container>
     </div>
   );

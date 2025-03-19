@@ -1,5 +1,5 @@
 
-import { useState , useEffect} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -13,10 +13,10 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  useEffect(() => {
-    setEmail("")
-    setPassword("")
-  }, []);
+  // useEffect(() => {
+  //   setEmail("")
+  //   setPassword("")
+  // }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
