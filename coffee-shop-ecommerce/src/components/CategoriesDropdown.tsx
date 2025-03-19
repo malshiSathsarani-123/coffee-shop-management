@@ -50,7 +50,7 @@ const categories = [
           <Popover.Body className="p-0">
             <ListGroup variant="flush">
               {categories.map((category, index) => (
-                <Link to={category.path} className="text-decoration-none"> 
+                <Link to={category.path} className="text-decoration-none" onClick={() => setShow(false)}> 
                 <ListGroup.Item 
                   key={index}
                   action

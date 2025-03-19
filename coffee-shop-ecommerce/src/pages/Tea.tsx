@@ -17,10 +17,8 @@ const Tea: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // In a real app, this would be an API call
     const fetchTeaProducts = () => {
       setLoading(true);
-      // Simulating API response with data for tea products
       const products: TeaProduct[] = [
         {
           id: 1,
@@ -149,6 +147,9 @@ const Tea: React.FC = () => {
                 teaProducts.map(product => (
                   <Col md={4} className="mb-4" key={product.id}>
                     <Card className="product-card h-100">
+                    <Link to="/cart" className="nav-link">
+                    
+                    
                       <div className="position-relative">
                         {product.isTopChoice && (
                           <div className="top-choice-badge">
@@ -170,7 +171,9 @@ const Tea: React.FC = () => {
                         <Card.Title className="product-title text-truncate">{product.name}</Card.Title>
                         <Card.Text className="product-price">RS. {product.price.toLocaleString()}</Card.Text>
                       </Card.Body>
+                      </Link>
                     </Card>
+                    
                   </Col>
                 ))
               )}

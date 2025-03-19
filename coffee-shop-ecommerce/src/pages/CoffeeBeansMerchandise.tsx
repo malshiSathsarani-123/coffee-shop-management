@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Cake.css';
+import axios from 'axios';
 
 interface CoffeeProduct {
   id: number;
@@ -15,58 +16,53 @@ interface CoffeeProduct {
 const CoffeeBeansMerchandise: React.FC = () => {
   const [products, setProducts] = useState<CoffeeProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // In a real app, this would be an API call
-    const fetchProducts = () => {
-      setLoading(true);
-      // Simulating API response with data from the image
-      const items: CoffeeProduct[] = [
-        {
-          id: 1,
-          name: "Premium Arabica Coffee Beans",
-          price: 3500,
-          image: "/images/arabica-beans.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 2,
-          name: "Robusta Coffee Beans",
-          price: 4000,
-          image: "/images/robusta-beans.jpg",
-          discount: 15,
-          isTopChoice: true
-        },
-        {
-          id: 3,
-          name: "Reusable Coffee Cups",
-          price: 1200,
-          image: "/images/reusable-cup.jpg",
-          isTopChoice: true
-        },
-        {
-          id: 4,
-          name: "Coffee Grinder - Manual",
-          price: 2500,
-          image: "/images/manual-grinder.jpg",
-          isTopChoice: true
-        },
-        {
-          id: 5,
-          name: "Coffee Bean Storage Jar",
-          price: 1800,
-          image: "/images/storage-jar.jpg",
-          isTopChoice: true
-        }
-      ];
+  const handleProductClick = (productId: number) => {
+    navigate(`/add-to-cart/${productId}`);
+  };
+useEffect(() => {
+  fetchProducts();
+}, []);
 
-      setProducts(items);
-      setLoading(false);
-    };
-
-    fetchProducts();
-  }, []);
+const fetchProducts = async () => {
+  setSelectedCategory("All Products")
+  setLoading(true);
+  try {
+    const response = await axios.get(`http://localhost:5000/api/coffeeProduct/getByCategory`, {
+      params: { category:"coffee-beans-merchandise" }
+  });   
+    setProducts(response.data.response);
+  } catch (err) {
+    setError("Failed to fetch products.");
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+// useEffect(() => {
+//   fetchProducts(selectedCategory);
+// }, [selectedCategory]);
+const fetchProductsBySubCategory = async (subCategory: string) => {
+  setSelectedCategory(subCategory)
+  console.log(selectedCategory)
+  setLoading(true);
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/coffeeProduct/getBySubCategory`, 
+      { params: { subCategory } }
+    );   
+    console.log(response.data.response) 
+    setProducts(response.data.response);
+  } catch (err) {
+    setError("Failed to fetch products.");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="coffee-beans-page">
@@ -83,38 +79,34 @@ const CoffeeBeansMerchandise: React.FC = () => {
           </Col>
         </Row>
         <Row>
-          <Col md={3} className="mb-4">
-            <div className="sidebar p-3 bg-light">
-              <h4 className="text-uppercase text-purple">Product Categories</h4>
-              <div className="category-nav">
-                <div className="breadcrumb-nav mb-3">
-                  <span>Home</span> / <span>Coffee Beans & Merchandise</span>
-                </div>
-                <ul className="nav flex-column category-list">
-                  <li className="nav-item">
-                    <Link to="/all-products" className="nav-link bg-purple text-white">
-                      All Products
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/coffee-beans" className="nav-link">
-                      Coffee Beans
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/coffee-accessories" className="nav-link">
-                      Coffee Accessories
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/merchandise" className="nav-link">
-                      Merchandise
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Col>
+        
+    <Col md={3} className="mb-4">
+      <div className="sidebar p-3 bg-light">
+        <h4 className="text-uppercase text-purple">Product Categories</h4>
+        <div className="category-nav">
+          <div className="breadcrumb-nav mb-3">
+            <span>Home</span> / <span>Coffee Beans & Merchandise</span>
+          </div>
+          <ul className="nav flex-column category-list">
+            {[
+              { name: "All Products", path: "all-products" },
+              { name: "Coffee Beans", path: "coffee-beans" },
+              { name: "Coffee Accessories", path: "coffee-accessories" },
+              { name: "Merchandise", path: "merchandise" }
+            ].map(({ name, path }) => (
+              <li key={path} className="nav-item">
+                <button 
+                  className={`nav-link ${selectedCategory === name ? "bg-purple text-white" : ""}`} 
+                  onClick={() => (name === "All Products" ? fetchProducts() : fetchProductsBySubCategory(name))}
+                >
+                  {name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Col>
           <Col md={9}>
             <Row>
               {loading ? (
@@ -126,7 +118,7 @@ const CoffeeBeansMerchandise: React.FC = () => {
               ) : (
                 products.map(product => (
                   <Col md={4} className="mb-4" key={product.id}>
-                    <Card className="product-card h-100">
+                    <Card className="product-card h-100" onClick={() => handleProductClick(product.id)}>
                       <div className="position-relative">
                         {product.isTopChoice && (
                           <div className="top-choice-badge">
@@ -142,7 +134,12 @@ const CoffeeBeansMerchandise: React.FC = () => {
                             </Badge>
                           </div>
                         )}
-                        <Card.Img variant="top" src={product.image} alt={product.name} className="product-image" />
+<Card.Img 
+                          variant="top" 
+                          src={product.image ? `http://localhost:5000/${product.image}` : "No Image"} 
+                          alt={product.name} 
+                          className="product-image" 
+                        /> 
                       </div>
                       <Card.Body>
                         <Card.Title className="product-title text-truncate">{product.name}</Card.Title>

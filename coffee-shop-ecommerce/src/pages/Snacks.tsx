@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Cake.css';
+import axios from 'axios';
 
 interface SnackProduct {
   id: number;
@@ -15,60 +16,52 @@ interface SnackProduct {
 const Snacks: React.FC = () => {
   const [snackProducts, setSnackProducts] = useState<SnackProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState("");
+      const [selectedCategory, setSelectedCategory] = useState("All Snacks");
+      const navigate = useNavigate();
 
-  useEffect(() => {
-    // In a real app, this would be an API call
-    const fetchSnackProducts = () => {
+      const handleProductClick = (productId: number) => {
+        navigate(`/add-to-cart/${productId}`);
+      };
+    useEffect(() => {
+      fetchProducts();
+    }, []);
+  
+    const fetchProducts = async () => {
+      setSelectedCategory("All Snacks")
       setLoading(true);
-      // Simulating API response with data from the image
-      const products: SnackProduct[] = [
-        {
-          id: 1,
-          name: "Cheese Stuffed Pretzels",
-          price: 2500,
-          image: "/images/cheese-pretzels.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 2,
-          name: "Crispy Veggie Chips",
-          price: 1500,
-          image: "/images/veggie-chips.jpg",
-          discount: 15,
-          isTopChoice: true
-        },
-        {
-          id: 3,
-          name: "Honey Glazed Nuts",
-          price: 1200,
-          image: "/images/honey-glazed-nuts.jpg",
-          discount: 5,
-          isTopChoice: true
-        },
-        {
-          id: 4,
-          name: "Spicy Nacho Bites",
-          price: 1800,
-          image: "/images/spicy-nacho-bites.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 5,
-          name: "Chocolate Chip Cookies",
-          price: 2000,
-          image: "/images/chocolate-chip-cookies.jpg",
-          isTopChoice: true
-        }
-      ];      
-
-      setSnackProducts(products);
-      setLoading(false);
+      try {
+        const response = await axios.get(`http://localhost:5000/api/coffeeProduct/getByCategory`, {
+          params: { category:"snacks" }
+      });   
+        setSnackProducts(response.data.response);
+      } catch (err) {
+        setError("Failed to fetch products.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+   
+    const fetchProductsBySubCategory = async (subCategory: string) => {
+      setSelectedCategory(subCategory)
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/coffeeProduct/getBySubCategory`, 
+          { params: { subCategory } }
+        );   
+        console.log(response.data.response) 
+        setSnackProducts(response.data.response);
+      } catch (err) {
+        setError("Failed to fetch products.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchSnackProducts();
-  }, []);
+ 
 
   return (
     <div className="snack-page">
@@ -85,53 +78,36 @@ const Snacks: React.FC = () => {
           </Col>
         </Row>
         <Row>
-          <Col md={3} className="mb-4">
-            <div className="sidebar p-3 bg-light">
-              <h4 className="text-uppercase text-purple">Snack Categories</h4>
-              <div className="category-nav">
-                <div className="breadcrumb-nav mb-3">
-                  <span>Home</span> / <span>Snacks</span>
-                </div>
-                <ul className="nav flex-column category-list">
-                  <li className="nav-item">
-                    <Link to="/all-snacks" className="nav-link bg-purple text-white">
-                      All Snacks
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/salty-snacks" className="nav-link">
-                      Salty Snacks
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/sweet-snacks" className="nav-link">
-                      Sweet Snacks
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/crisps" className="nav-link">
-                      Crisps & Chips
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/cookies" className="nav-link">
-                      Cookies & Biscuits
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/nuts" className="nav-link">
-                      Nuts & Dry Fruits
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/healthy-snacks" className="nav-link">
-                      Healthy Snacks
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Col>
+        <Col md={3} className="mb-4">
+      <div className="sidebar p-3 bg-light">
+        <h4 className="text-uppercase text-purple">Snack Categories</h4>
+        <div className="category-nav">
+          <div className="breadcrumb-nav mb-3">
+            <span>Home</span> / <span>Snacks</span>
+          </div>
+          <ul className="nav flex-column category-list">
+            {[
+              { name: "All Snacks", path: "all-snacks" },
+              { name: "Salty Snacks", path: "salty-snacks" },
+              { name: "Sweet Snacks", path: "sweet-snacks" },
+              { name: "Crisps & Chips", path: "crisps" },
+              { name: "Cookies & Biscuits", path: "cookies" },
+              { name: "Nuts & Dry Fruits", path: "nuts" },
+              { name: "Healthy Snacks", path: "healthy-snacks" }
+            ].map(({ name, path }) => (
+              <li key={path} className="nav-item">
+                <button 
+                  className={`nav-link ${selectedCategory === name ? "bg-purple text-white" : ""}`} 
+                  onClick={() => (name === "All Snacks" ? fetchProducts() : fetchProductsBySubCategory(name))}
+                >
+                  {name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Col>
           <Col md={9}>
             <Row>
               {loading ? (
@@ -143,7 +119,7 @@ const Snacks: React.FC = () => {
               ) : (
                 snackProducts.map(product => (
                   <Col md={4} className="mb-4" key={product.id}>
-                    <Card className="product-card h-100">
+                    <Card className="product-card h-100" onClick={() => handleProductClick(product.id)}>
                       <div className="position-relative">
                         {product.isTopChoice && (
                           <div className="top-choice-badge">
@@ -159,7 +135,12 @@ const Snacks: React.FC = () => {
                             </Badge>
                           </div>
                         )}
-                        <Card.Img variant="top" src={product.image} alt={product.name} className="product-image" />
+                        <Card.Img 
+                          variant="top" 
+                          src={product.image ? `http://localhost:5000/${product.image}` : "No Image"} 
+                          alt={product.name} 
+                          className="product-image" 
+                        />   
                       </div>
                       <Card.Body>
                         <Card.Title className="product-title text-truncate">{product.name}</Card.Title>

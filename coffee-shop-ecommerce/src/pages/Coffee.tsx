@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Cake.css';
+import axios from 'axios';
 
 interface CoffeeProduct {
   id: number;
@@ -15,61 +16,52 @@ interface CoffeeProduct {
 const Coffee: React.FC = () => {
   const [coffeeProducts, setCoffeeProducts] = useState<CoffeeProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Coffees");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // In a real app, this would be an API call
-    const fetchCoffeeProducts = () => {
-      setLoading(true);
-      // Simulating API response with data from the image
-      const products: CoffeeProduct[] = [
-        {
-          id: 1,
-          name: "Signature Espresso Blend",
-          price: 4500,
-          image: "/images/signature-espresso.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 2,
-          name: "Velvet Mocha Delight",
-          price: 5200,
-          image: "/images/velvet-mocha.jpg",
-          discount: 15,
-          isTopChoice: true
-        },
-        {
-          id: 3,
-          name: "Hazelnut Caramel Latte",
-          price: 4800,
-          image: "/images/hazelnut-caramel-latte.jpg",
-          discount: 5,
-          isTopChoice: true
-        },
-        {
-          id: 4,
-          name: "Classic French Roast",
-          price: 5000,
-          image: "/images/classic-french-roast.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 5,
-          name: "Iced Vanilla Cold Brew",
-          price: 5500,
-          image: "/images/iced-vanilla-cold-brew.jpg",
-          isTopChoice: true
-        }
-      ];      
-      
-      setCoffeeProducts(products);
-      setLoading(false);
-    };
-
-    fetchCoffeeProducts();
+    fetchProducts();
   }, []);
+  const handleProductClick = (productId: number) => {
+    navigate(`/add-to-cart/${productId}`);
+  };
 
+  const fetchProducts = async () => {
+    setSelectedCategory("All Coffees")
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:5000/api/coffeeProduct/getByCategory`, {
+        params: { category:"coffee" }
+    });   
+      setCoffeeProducts(response.data.response);
+    } catch (err) {
+      setError("Failed to fetch products.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // useEffect(() => {
+  //   fetchProducts(selectedCategory);
+  // }, [selectedCategory]);
+  const fetchProductsBySubCategory = async (subCategory: string) => {
+    setSelectedCategory(subCategory)
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/coffeeProduct/getBySubCategory`, 
+        { params: { subCategory } }
+      );   
+      console.log(response.data.response) 
+      setCoffeeProducts(response.data.response);
+    } catch (err) {
+      setError("Failed to fetch products.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="cake-page">
       <Container fluid>
@@ -85,63 +77,38 @@ const Coffee: React.FC = () => {
           </Col>
         </Row>
         <Row>
-          <Col md={3} className="mb-4">
-            <div className="sidebar p-3 bg-light">
-              <h4 className="text-uppercase text-purple">Coffee Categories</h4>
-              <div className="category-nav">
-                <div className="breadcrumb-nav mb-3">
-                  <span>Home</span> / <span>Coffee</span>
-                </div>
-                <ul className="nav flex-column category-list">
-                  <li className="nav-item">
-                    <Link to="/all-coffees" className="nav-link bg-purple text-white">
-                      All Coffees
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/espresso" className="nav-link">
-                      Espresso
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/latte" className="nav-link">
-                      Latte
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/cappuccino" className="nav-link">
-                      Cappuccino
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/mocha" className="nav-link">
-                      Mocha
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/cold-brew" className="nav-link">
-                      Cold Brew
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/iced-coffee" className="nav-link">
-                      Iced Coffee
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/specialty-coffee" className="nav-link">
-                      Specialty Coffee
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/organic-coffee" className="nav-link">
-                      Organic Coffee
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </Col>
+        <Col md={3} className="mb-4">
+      <div className="sidebar p-3 bg-light">
+        <h4 className="text-uppercase text-purple">Coffee Categories</h4>
+        <div className="category-nav">
+          <div className="breadcrumb-nav mb-3">
+            <span>Home</span> / <span>Coffee</span>
+          </div>
+          <ul className="nav flex-column category-list">
+            {[
+              { name: "All Coffees", path: "all-coffees" },
+              { name: "Espresso", path: "espresso" },
+              { name: "Latte", path: "latte" },
+              { name: "Cappuccino", path: "cappuccino" },
+              { name: "Mocha", path: "mocha" },
+              { name: "Cold Brew", path: "cold-brew" },
+              { name: "Iced Coffee", path: "iced-coffee" },
+              { name: "Specialty Coffee", path: "specialty-coffee" },
+              { name: "Organic Coffee", path: "organic-coffee" }
+            ].map(({ name, path }) => (
+              <li key={path} className="nav-item">
+                <button 
+                  className={`nav-link ${selectedCategory === name ? "bg-purple text-white" : ""}`} 
+                  onClick={() => (name === "All Coffees" ? fetchProducts() : fetchProductsBySubCategory(name))}
+                >
+                  {name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Col>
           <Col md={9}>
             <Row>
               {loading ? (
@@ -153,31 +120,34 @@ const Coffee: React.FC = () => {
               ) : (
                 coffeeProducts.map(product => (
                   <Col md={4} className="mb-4" key={product.id}>
-                    <Card className="product-card h-100">
+                    <Card className="product-card h-100" onClick={() => handleProductClick(product.id)}>
                       <div className="position-relative">
                         {product.isTopChoice && (
-                          <div className="top-choice-badge">
-                            <Badge bg="warning" className="position-absolute top-0 start-0 mt-2 ms-2">
-                              Top Choices
-                            </Badge>
-                          </div>
+                          <Badge bg="warning" className="position-absolute top-0 start-0 mt-2 ms-2">
+                            Top Choice
+                          </Badge>
                         )}
                         {product.discount && (
-                          <div className="discount-badge">
-                            <Badge bg="dark" className="position-absolute bottom-0 end-0 mb-2 me-2">
-                              {product.discount}% off
-                            </Badge>
-                          </div>
+                          <Badge bg="dark" className="position-absolute bottom-0 end-0 mb-2 me-2">
+                            {product.discount}% off
+                          </Badge>
                         )}
-                        <Card.Img variant="top" src={product.image} alt={product.name} className="product-image" />
+                        <Card.Img 
+                          variant="top" 
+                          src={product.image ? `http://localhost:5000/${product.image}` : "No Image"} 
+                          alt={product.name} 
+                          className="product-image" 
+                        />
                       </div>
                       <Card.Body>
                         <Card.Title className="product-title text-truncate">{product.name}</Card.Title>
-                        <Card.Text className="product-price">RS. {product.price.toLocaleString()}</Card.Text>
+                        <Card.Text className="product-price">
+                          RS. {product.price ? product.price.toLocaleString() : "N/A"}
+                        </Card.Text>
                       </Card.Body>
                     </Card>
                   </Col>
-                ))
+                ))                
               )}
             </Row>
           </Col>

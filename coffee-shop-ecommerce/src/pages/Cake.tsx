@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Cake.css';
+import axios from 'axios';
 
 interface CakeProduct {
   id: number;
@@ -15,60 +16,50 @@ interface CakeProduct {
 const Cake: React.FC = () => {
   const [cakeProducts, setCakeProducts] = useState<CakeProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Cakes");
+  const navigate = useNavigate();
+  const handleProductClick = (productId: number) => {
+    navigate(`/add-to-cart/${productId}`);
+  };
+  
   useEffect(() => {
-    // In a real app, this would be an API call
-    const fetchCakeProducts = () => {
-      setLoading(true);
-      // Simulating API response with data from the image
-      const products: CakeProduct[] = [
-        {
-          id: 1,
-          name: "Eternal Love Kapruka Cake",
-          price: 8900,
-          image: "/images/eternal-love-cake.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 2,
-          name: "Love In Bloom Combo",
-          price: 12910,
-          image: "/images/love-bloom-combo.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 3,
-          name: "To My Better Half Kapruka",
-          price: 8700,
-          image: "/images/better-half-combo.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 4,
-          name: "Heartfelt Hugs And Roses",
-          price: 13480,
-          image: "/images/heartfelt-hugs-roses.jpg",
-          discount: 10,
-          isTopChoice: true
-        },
-        {
-          id: 5,
-          name: "I'm Here For You Chocolate",
-          price: 7520,
-          image: "/images/here-for-you-chocolate.jpg",
-          isTopChoice: true
-        }
-      ];
-      
-      setCakeProducts(products);
-      setLoading(false);
-    };
-
-    fetchCakeProducts();
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    setSelectedCategory("All Cakes")
+    setLoading(true);
+    try {
+      const response = await axios.get(`http://localhost:5000/api/coffeeProduct/getByCategory`, {
+        params: { category:"cake" }
+    });   
+      setCakeProducts(response.data.response);
+    } catch (err) {
+      setError("Failed to fetch products.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchProductsBySubCategory = async (subCategory: string) => {
+    setSelectedCategory(subCategory)
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/coffeeProduct/getBySubCategory`, 
+        { params: { subCategory } }
+      );   
+      console.log(response.data.response) 
+      setCakeProducts(response.data.response);
+    } catch (err) {
+      setError("Failed to fetch products.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="cake-page">
@@ -84,67 +75,39 @@ const Cake: React.FC = () => {
             </div>
           </Col>
         </Row>
-
         <Row>
-        <Col md={3} className="mb-4">
+          <Col md={3} className="mb-4">
             <div className="sidebar p-3 bg-light">
-                <h4 className="text-uppercase text-purple">Cake Categories</h4>
-                <div className="category-nav">
+              <h4 className="text-uppercase text-purple">Cake Categories</h4>
+              <div className="category-nav">
                 <div className="breadcrumb-nav mb-3">
-                    <span>Home</span> / <span>Cakes</span>
+                  <span>Home</span> / <span>Cakes</span>
                 </div>
                 <ul className="nav flex-column category-list">
-                    <li className="nav-item">
-                    <Link to="/all-cakes" className="nav-link bg-purple text-white">
-                        All Cakes
-                    </Link>
+                  {[
+                    { name: "All Cakes", path: "all-cakes" },
+                    { name: "Chocolate Cakes", path: "choco-cakes" },
+                    { name: "Fruit Cakes", path: "fruit-cakes" },
+                    { name: "Cake And Flower", path: "cake-and-flower" },
+                    { name: "Gift Set And Cake", path: "gift-set-and-cake" },
+                    { name: "Choco Gift And Cake", path: "choco-gift-and-cake" },
+                    { name: "Premium Cakes", path: "premium-cakes" },
+                    { name: "Birthday Cakes", path: "birthday-cakes" },
+                    { name: "Wedding Cakes", path: "wedding-cakes" }
+                  ].map(({ name, path }) => (
+                    <li key={path} className="nav-item">
+                      <button 
+                        className={`nav-link ${selectedCategory === name ? "bg-purple text-white" : ""}`} 
+                        onClick={() => (name === "All Cakes" ? fetchProducts() : fetchProductsBySubCategory(name))}
+                      >
+                        {name}
+                      </button>
                     </li>
-                    <li className="nav-item">
-                    <Link to="/choco-cakes" className="nav-link">
-                        Chocolate Cakes
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/fruit-cakes" className="nav-link">
-                        Fruit Cakes
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/cake-and-flower" className="nav-link">
-                        Cake And Flower (21)
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/gift-set-and-cake" className="nav-link">
-                        Gift Set And Cake (11)
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/choco-gift-and-cake" className="nav-link">
-                        Choco Gift And Cake
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/premium-cakes" className="nav-link">
-                        Premium Cakes
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/birthday-cakes" className="nav-link">
-                        Birthday Cakes
-                    </Link>
-                    </li>
-                    <li className="nav-item">
-                    <Link to="/wedding-cakes" className="nav-link">
-                        Wedding Cakes
-                    </Link>
-                    </li>
+                  ))}
                 </ul>
-                </div>
+              </div>
             </div>
-        </Col>
-
-
+         </Col>
           <Col md={9}>
             <Row>
               {loading ? (
@@ -156,7 +119,7 @@ const Cake: React.FC = () => {
               ) : (
                 cakeProducts.map(product => (
                   <Col md={4} className="mb-4" key={product.id}>
-                    <Card className="product-card h-100">
+                    <Card className="product-card h-100" onClick={() => handleProductClick(product.id)}>
                       <div className="position-relative">
                         {product.isTopChoice && (
                           <div className="top-choice-badge">
@@ -172,8 +135,13 @@ const Cake: React.FC = () => {
                             </Badge>
                           </div>
                         )}
-                        <Card.Img variant="top" src={product.image} alt={product.name} className="product-image" />
-                      </div>
+                        <Card.Img 
+                          variant="top" 
+                          src={product.image ? `http://localhost:5000/${product.image}` : "No Image"} 
+                          alt={product.name} 
+                          className="product-image" 
+                        />   
+                                           </div>
                       <Card.Body>
                         <Card.Title className="product-title text-truncate">{product.name}</Card.Title>
                         <Card.Text className="product-price">RS. {product.price.toLocaleString()}</Card.Text>

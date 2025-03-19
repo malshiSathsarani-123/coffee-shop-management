@@ -1,11 +1,22 @@
-import React from 'react';
+import { useCart } from "../context/CartContext";
 
-const CartPage: React.FC = () => {
+const CartPage = () => {
+  const { cart } = useCart();
+
   return (
-    <div className="container mt-4">
-      <h2>Your Cart</h2>
-      {/* Cart items would be shown here */}
-      <p>Your cart is empty.</p>
+    <div>
+      <h2>Shopping Cart</h2>
+      {cart.length > 0 ? (
+        cart.map((item, index) => (
+          <div key={index} className="cart-item">
+            <img src={`http://localhost:5000/${item.image}`} alt={item.name} width="100" />
+            <h4>{item.name}</h4>
+            <p>RS. {item.price.toLocaleString()}</p>
+          </div>
+        ))
+      ) : (
+        <p>Your cart is empty</p>
+      )}
     </div>
   );
 };
