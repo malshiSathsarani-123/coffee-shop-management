@@ -3,6 +3,7 @@ import { Container, Card, Table, Button, Modal, Form ,Row,Col} from "react-boots
 import Sidebar from "../components/Sidebar";
 import axios from 'axios';
 import "./styles.css"; 
+import Swal from "sweetalert2";
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -78,10 +79,16 @@ const Products: React.FC = () => {
             throw new Error(data.error || "Failed to update product");
         }
         fetchProducts();
-        alert("Product updated successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "Product updated successfully!",
+        })
         setShowUpdateModal(false);
     } catch (error) {
-        alert("Error updating product. Please try again.");
+      Swal.fire({
+        icon: "warning",
+        title: "Error updating product. Please try again!",
+      })
     }
   };
 
@@ -96,12 +103,24 @@ const Products: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) {
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Authentication token is missing!",
+      });
       return;
     }
   
-    if (!token) {
-      alert("Authentication token is missing.");
+    const result = await Swal.fire({
+      icon: "info",
+      title: "Are you sure?",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    });
+  
+    if (!result.isConfirmed) {
+      console.log("User clicked No");
       return;
     }
   
@@ -110,25 +129,41 @@ const Products: React.FC = () => {
         `http://localhost:5000/api/coffeeProduct/delete/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+  
       if (response.status === 200) {
-        fetchProducts();  
-        alert(response.data.message);
+        fetchProducts();
+        Swal.fire({
+          icon: "success",
+          title: response.data.message,
+        });
       } else {
-        alert("Error: " + response.data.message);
+        Swal.fire({
+          icon: "error",
+          title: response.data.message,
+        });
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          alert(`Error: ${error.response.data.message || "Something went wrong."}`);
+          Swal.fire({
+            icon: "error",
+            title: "Something went wrong.",
+          });
         } else if (error.request) {
-          alert("No response from server. Please try again later.");
+          Swal.fire({
+            icon: "error",
+            title: "No response from server. Please try again later.",
+          });
         }
       } else {
-        alert("Error: " + (error instanceof Error ? error.message : "An unknown error occurred."));
+        Swal.fire({
+          icon: "error",
+          title: "An unknown error occurred",
+        });
       }
     }
   };
+  
   
   useEffect(() => {
     fetchProducts();
@@ -170,7 +205,10 @@ const Products: React.FC = () => {
 
   const handleSaveProduct = async () => {
     if (!newProduct.name || !newProduct.price || !newProduct.image || !newProduct.category) {
-      alert("Please fill all required fields!");
+      Swal.fire({
+        icon: "warning",
+        title: "Please fill all required fields",
+      })
       return;
     }
   
@@ -189,10 +227,16 @@ const Products: React.FC = () => {
         },
       });
         fetchProducts();
-        alert(response.data.message);
+        Swal.fire({
+          icon: "success",
+          title: response.data.message,
+        })
         setShowModal(false);
       } catch (error) {
-        alert("Failed to save product");
+        Swal.fire({
+          icon: "error",
+          title: "Failed to save product",
+        })
       }
   };
 

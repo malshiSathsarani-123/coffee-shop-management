@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Card, Button, Table , Modal, Form ,Row,Col} from "react-bootstrap";
 import Sidebar from "../components/Sidebar";
 import axios from 'axios';
+import Swal from "sweetalert2";
 
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -29,8 +30,29 @@ const Orders: React.FC = () => {
     price: number;
   }
 
-  const handleOrder = (order:any) => {
-    console.log(order)
+  const handleOrder = async (order:any) => {
+    console.log(order.status)
+    Swal.fire({
+      icon: "info",
+      title: "Are you sure?",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+    });
+    try {
+      const id = order.id;
+      const status = "deliverd";
+      const response = await axios.put(`http://localhost:5000/api/order/updateStatus/${id}/${status}`);
+      setOrderItems(response.data);
+    } catch (err) {
+      setError("Failed to fetch orders details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const viewOrder = async (id: string) => {
@@ -101,7 +123,7 @@ const Orders: React.FC = () => {
                           {order.customerContact}
                           </td>
                           <td className="d-flex flex-column">
-                            <button
+                            <button 
                                 className="btn btn-outline-success m-1 btn-sm"
                                 onClick={() => viewOrder(order.id)}
                             >
@@ -110,10 +132,11 @@ const Orders: React.FC = () => {
                             <button
                                 className="btn btn-outline-info m-1 btn-sm"
                                 onClick={() => handleOrder(order)}
+                                disabled={order.status == "deliverd"}
                             >
-                                Action
+                                Deliver
                             </button>
-                           </td>
+                          </td>
                         </tr>
                       ))}
                     </tbody>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles.css";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -29,19 +30,32 @@ const RegisterPage = () => {
         body: JSON.stringify(userData),
       });
 
-      const data = await response.json();
+      await response.json();
 
       if (response.ok) {
-        alert("Registration successful! Please log in.");
-        navigate("/");
+        Swal.fire({
+          icon: "success",
+          title: "Registration successful! Please log in.",
+        }).then(() => {
+          navigate("/");
+        });
       } else {
-        alert(data.message || "Something went wrong");
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong.",
+        })
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        alert("Error: " + error.message); 
+        Swal.fire({
+          icon: "error",
+          title: error.message,
+        })
       } else {
-        alert("An unknown error occurred.");
+        Swal.fire({
+          icon: "error",
+          title: "An unknown error occurred"
+        })
       }
     }
   };

@@ -1,4 +1,4 @@
-
+import Swal from "sweetalert2";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -13,18 +13,16 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // useEffect(() => {
-  //   setEmail("")
-  //   setPassword("")
-  // }, []);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await login(email, password);
     if (success) {
       navigate("/dashboard"); 
     } else {
-      alert("Invalid credentials!"); 
+      Swal.fire({
+        icon: "error",
+        title: "Invalid credentials!.",
+      })
     }
   };
   return (
