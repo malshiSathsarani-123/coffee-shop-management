@@ -1,13 +1,15 @@
-// export default PlaceOrder;
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import Swal from "sweetalert2";
 
 const PlaceOrder = () => {
   const location = useLocation();
   const [rememberCard, setRememberCard] = useState(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const { cart, total }: { cart: CartItem[]; total: number } = location.state || { cart: [], total: 0 };
+  const navigate = useNavigate();
 
   interface PaymentInfo {
     cardName: string;
@@ -88,18 +90,39 @@ const PlaceOrder = () => {
         price: item.price,
       })),
     };
+    
+
     try {
       const response = await axios.post("http://localhost:5000/api/order/save", orderData);
-      alert(`Order placed successfully! Order ID: ${response.data.orderId}`);
-    }catch (error: unknown) {
+      Swal.fire({
+        icon: "success",
+        title: "Order Placed!",
+        text: `Order ID: ${response.data.orderId}`,
+      }).then(() => {
+        navigate(`/`);
+      });
+    } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        alert("Error placing order: " + error.response?.data?.message || error.message);
+        Swal.fire({
+          icon: "error",
+          title: "Order Failed!",
+          text: error.response?.data?.message || error.message,
+        });
       } else if (error instanceof Error) {
-        alert("Error placing order: " + error.message);
+        Swal.fire({
+          icon: "error",
+          title: "Order Failed!",
+          text: error.message,
+        });
       } else {
-        alert("An unknown error occurred");
+        Swal.fire({
+          icon: "error",
+          title: "Unknown Error",
+          text: "An unknown error occurred",
+        });
       }
-    }    
+    }
+      
   };
 
   return (

@@ -7,7 +7,7 @@ import CategoriesDropdown from "../components/CategoriesDropdown";
 const AppNavbar: React.FC = () => {
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg" className="py-2 w-100">
+      <Navbar bg="dark" variant="dark" expand="lg" className="py-2 vw-100">
         <Container fluid>
           <Navbar.Brand as={Link} to="/" className="me-4">
             <h2 className="mb-0 text-white">

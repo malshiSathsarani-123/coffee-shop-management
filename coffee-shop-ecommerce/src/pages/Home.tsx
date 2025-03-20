@@ -1,62 +1,24 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Card } from 'react-bootstrap';
-// import { FaUser, FaTruck, FaTag, FaCalendarAlt, FaTags } from 'react-icons/fa';
-// import CategoriesDropdown from '../components/CategoriesDropdown'; 
 import { Link } from 'react-router-dom'; 
 
 const Home: React.FC = () => {
   const categories = [
     { id: 1, name: 'Coffee', image: '/src/assets/coffee.jpeg', path: '/coffee' },
     { id: 2, name: 'Tea', image: '/src/assets/tea.jpeg', path: '/tea' },
-    { id: 3, name: 'Beverages', image: '/src/assets/beverages.jpeg', path: '/beverages' },
-    { id: 4, name: 'Pastries & Snacks', image: '/src/assets/snacks.jpeg', path: '/snacks' },
-    { id: 5, name: 'Cakes', image: '/src/assets/cake.jpeg', path: '/cake' },
+    { id: 3, name: 'Beverages', image: '/src/assets/baverages.avif', path: '/beverages' },
+    { id: 4, name: 'Pastries & Snacks', image: '/src/assets/patisserie.avif', path: '/snacks' },
+    { id: 5, name: 'Cakes', image: '/src/assets/cake.avif', path: '/cake' },
     { id: 6, name: 'Coffee Beans & Merchandise', image: '/src/assets/coffee-beans-merchandise.jpeg', path: '/coffee-beans-merchandise' }
   ];
   
   return (
-    <div className="dashboard vw-100 overflow-hidden p-0 m-0">
-      {/* Categories Menu */}
-      {/* <div className="bg-light py-3 vw-100 m-0">
-        <Container fluid className="px-0 mx-0 w-100">
-          <Row className="g-2 align-items-center flex-nowrap overflow-auto mx-0 w-100">
-            <Col xs="auto">
-              <CategoriesDropdown />
-            </Col>
-            <Col xs="auto">
-              <div className="d-flex align-items-center text-secondary">
-                <FaTruck className="me-2" /> Rush delivery
-              </div>
-            </Col>
-            <Col xs="auto">
-              <div className="d-flex align-items-center text-secondary">
-                <FaTag className="me-2" /> On Sale
-              </div>
-            </Col>
-            <Col xs="auto">
-              <div className="d-flex align-items-center text-secondary">
-                <FaCalendarAlt className="me-2" /> Events
-              </div>
-            </Col>
-            <Col xs="auto">
-              <div className="d-flex align-items-center text-secondary">
-                <FaTags className="me-2" /> Brands
-              </div>
-            </Col>
-            <Col xs="auto" className="ms-auto">
-              <div className="d-flex align-items-center text-secondary">
-                <FaUser className="me-2" /> For You
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </div> */}
-      
+    <div className="dashboard vw-100 overflow-hidden p-0 m-0"> 
       {/* Hero Banner */}
       <div className="hero-banner position-relative vw-100 m-0 p-0">
         <img 
-          src="/src/assets/cofeeShopBackground.jpeg" 
+          src="/src/assets/coffee.avif" 
           alt="Shop the Vibe, Wear the Trend" 
           className="vw-100"
           style={{ 
