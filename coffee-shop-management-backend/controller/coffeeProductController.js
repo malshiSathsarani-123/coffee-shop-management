@@ -93,7 +93,7 @@ const updateCoffeeProduct = async (req, res) => {
         const updateFields = { name, price, qty };
 
         if (req.file) {
-            updateFields.image = req.file.path; // Only update image if a new file is uploaded
+            updateFields.image = req.file.path; 
         }
 
         await CoffeeProduct.updateOne({ id: id }, { $set: updateFields });
