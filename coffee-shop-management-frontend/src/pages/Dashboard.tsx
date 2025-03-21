@@ -16,22 +16,20 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-
 const dashboardStats = {
   totalOrders: 21375,
   newCustomers: 1012,
-  totalSales: "$24,254",
+  totalSales: "24,254",
   orderGrowth: "↑ 12.5%",
   customerGrowth: "↑ 6.8%",
   salesGrowth: "↑ 9.2%",
 };
 
-
 const trendingCoffee = [
-  { name: "☕ Cappuccino", price: "$5.00", orders: 240 },
-  { name: "☕ Latte", price: "$4.50", orders: 210 },
-  { name: "☕ Frappuccino", price: "$6.00", orders: 180 },
-  { name: "☕ Mocha", price: "$5.50", orders: 160 },
+  { name: "☕ Cappuccino", price: "1200", orders: 240 },
+  { name: "☕ Latte", price: "450", orders: 210 },
+  { name: "☕ Frappuccino", price: "600", orders: 180 },
+  { name: "☕ Mocha", price: "550", orders: 160 },
 ];
 
 const salesLabels = ["9 AM", "12 PM", "3 PM", "6 PM", "9 PM", "12 AM"];
