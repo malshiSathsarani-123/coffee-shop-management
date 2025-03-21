@@ -1,11 +1,11 @@
 # Cofee Shop Application
 
-This is a Cofee-Shop app that allows users to browse, order, and watch their favorite fast-food items.
+This is a Cofee-Shop app that allows users to browse, order.
 
 ## Features
 
-- Order fast-food online.
-- Watch fast-food items to get updates.
+- Order cofee online.
+- Watch coffee items to get updates.
 
 ## Tech Stack
 
