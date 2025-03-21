@@ -3,10 +3,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const PlaceOrder = () => {
   const location = useLocation();
   const [rememberCard, setRememberCard] = useState(false);
+  const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
   const { cart, total }: { cart: CartItem[]; total: number } = location.state || { cart: [], total: 0 };
   const navigate = useNavigate();
@@ -46,18 +49,42 @@ const PlaceOrder = () => {
     },
   });
 
+  const handleDateChange = (date: Date | null) => {
+    setExpiryDate(date);
+    if (date) {
+      const formattedDate = `${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear().toString().slice(-2)}`;
+      setFormData((prev) => ({
+        ...prev,
+        payment: { ...prev.payment, expiry: formattedDate },
+      }));
+    }
+  };
+  // useEffect(() => {
+  //   const isValid =
+  //     formData.name.trim() !== "" &&
+  //     formData.address.trim() !== "" &&
+  //     formData.contact.trim() !== "" &&
+  //     formData.payment.cardName.trim() !== "" &&
+  //     formData.payment.cardNumber.trim() !== "" &&
+  //     formData.payment.expiry.trim() !== "" &&
+  //     formData.payment.cvv.trim() !== "";
+
+  //   setIsFormValid(isValid);
+  // }, [formData]);
+
   useEffect(() => {
     const isValid =
       formData.name.trim() !== "" &&
       formData.address.trim() !== "" &&
       formData.contact.trim() !== "" &&
       formData.payment.cardName.trim() !== "" &&
-      formData.payment.cardNumber.trim() !== "" &&
+      /^\d{16}$/.test(formData.payment.cardNumber.trim()) && 
       formData.payment.expiry.trim() !== "" &&
-      formData.payment.cvv.trim() !== "";
-
+      /^\d{3}$/.test(formData.payment.cvv);
+  
     setIsFormValid(isValid);
   }, [formData]);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target;
@@ -173,7 +200,15 @@ const PlaceOrder = () => {
                   <input type="text" className="form-control mb-3" name="cardNumber" placeholder="Card Number" onChange={handleInputChange} required />
                   <div className="row mb-3">
                     <div className="col-6">
-                      <input type="text" className="form-control" name="expiry" placeholder="MM/YY" onChange={handleInputChange} required />
+                    <DatePicker
+                        selected={expiryDate}
+                        onChange={handleDateChange}
+                        dateFormat="MM/yy"
+                        showMonthYearPicker
+                        className="form-control"
+                        placeholderText="MM/YY"
+                      />
+                      {/* <input type="text" className="form-control" name="expiry" placeholder="MM/YY" onChange={handleInputChange} required /> */}
                     </div>
                     <div className="col-6">
                       <input type="text" className="form-control" name="cvv" placeholder="CVV" onChange={handleInputChange} required />
