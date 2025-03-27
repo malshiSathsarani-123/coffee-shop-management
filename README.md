@@ -11,7 +11,7 @@ This is a Cofee-Shop app that allows users to browse, order.
 
 - **Frontend:** React JS, Boostrap CSS
 - **Backend:** Express JS
-- **Database:** MySQL
+- **Database:** MongoDB
 
 ## Getting Started
 
@@ -21,4 +21,4 @@ To get a local copy up and running follow these simple steps.
 
 - Node.js
 - Java Development Kit (JDK)
-- MySQL
+- MongoDB
